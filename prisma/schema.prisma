@@ -1,0 +1,44 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Produk {
+  id     Int    @id @default(autoincrement())
+  nama   String
+  sku    String @unique
+  harga  Int
+  stok   Int    @default(0)
+
+  items TransaksiItem[]
+}
+
+model Transaksi {
+  id              Int    @id @default(autoincrement())
+  idempotency_key String @unique
+  kasir           String
+  total           Int
+  bayar           Int
+  kembalian       Int
+  status          String @default("synced")
+  created_at      String
+  synced_at       String?
+
+  items TransaksiItem[]
+}
+
+model TransaksiItem {
+  id           Int @id @default(autoincrement())
+  transaksi_id Int
+  produk_id    Int
+  qty          Int
+  harga_satuan Int
+  subtotal     Int
+
+  transaksi Transaksi @relation(fields: [transaksi_id], references: [id], onDelete: Cascade)
+  produk    Produk    @relation(fields: [produk_id], references: [id])
+}
